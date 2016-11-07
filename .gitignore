@@ -1,0 +1,5 @@
+.idea/
+__pycache__/
+roomies/__init__.pyc
+roomies/__pycache__/
+venv
