@@ -5,11 +5,13 @@ from . import db
 # TODO: What will our models need?
 
 class User(db.Document):
-    username = db.StringField(required=True)
-    firstname = db.StringField()
-    lastname = db.StringField()
-    roomID = db.StringField(required=True)
+    username = db.StringField(required=True)  # Default is False
+    room = db.ObjectIdField(required=True)
+    first_name = db.StringField()
+    last_name = db.StringField()
 
 
 class Room(db.Document):
-    title = db.StringField(required=True)
+    room_name = db.StringField(required=True)
+    users = db.ListField(db.ObjectIdField(), default=list)
+
