@@ -92,12 +92,11 @@ def completeTask(taskId):
         task = Task.objects.get(id=taskId)
         task.delete()
         return 'Delete OK'
-        
- #get all tasks
+
+
+#get all tasks
 @app.route('/tasks/',methods=['GET'])
 def getAllTasks():
     #params = request.get_json()
     #room==params['token'] if 'token' in params else ''
     return jsonify(Task.objects())
-        
-    
