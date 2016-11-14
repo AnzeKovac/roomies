@@ -11,7 +11,7 @@ from . import app, db
 def test_get():
     return "popravi me :( -> nečem"
 
-
+#authentication
 @app.route('/register/<string:username>', methods=['POST'])
 def register_user(username):
     parms = request.get_json()
@@ -48,23 +48,55 @@ def register_user(username):
     #let's program in engleski, shall we ?
     return 'User je registriran' 
 
-@app.route('/tasks', methods=['POST'])
-def addNewTask():
-    task = Task()
 
-    parameters = request.get_json()
+#Task
+@app.route('/task/add', methods=['POST'])
+def addNewTas():
+        task = Task()
+        parameters = request.get_json()
 
-    taskName = parameters['taskName']
-    additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
-    awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
-    assignedUser =  parameters['userId'] if 'usedId' in parameters else ''
+        taskName = parameters['taskName']
+        additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
+        awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
+        assignedUser =  parameters['userId'] if 'usedId' in parameters else ''
+        room = parameters['room'] if 'room' in parameters else ''
 
-    task.taskName = taskName if taskName else ''
-    task.additionalDescription = additionalDescription
-    task.awardPoints = awardPoints
-    task.assignedUser = assignedUser
+        task.taskName = taskName if taskName else ''
+        task.additionalDescription = additionalDescription
+        task.awardPoints = awardPoints
+        task.assignedUser = assignedUser
+        task.status = 'new'
+        task.room = room
+        #if user send notification ?
+        task.save()
+        return jsonify(task)
+        
+        
+
+@app.route('/task/<string:taskId>',methods=['GET','DELETE','PUT'])
+def completeTask(taskId):
+    if request.method == 'GET':
+        return jsonify(Task.objects.get(id=taskId))
+    elif request.method == 'PUT':
+        params = request.get_json()
+        task = Task.objects.get(id=taskId)
+        task.taskName = params['taskName'] if 'taskName' in params else task.TaskName
+        task.additionalDescription = params['additionalDescription'] if 'additionalDescription' in params else task.additionalDescription
+        task.awardPoints = params['awardPoints'] if 'awardPoints' in params else task.awardPoints
+        task.assignedUser = params['userId'] if 'userId' in params else task.assignedUser
+        task.room = params['room'] if 'room' in params else task.room
+        task.status = params['status'] if 'status' in params else task.status
+        task.save()
+        return 'Update OK'
+    elif request.method == 'DELETE':
+        task = Task.objects.get(id=taskId)
+        task.delete()
+        return 'Delete OK'
+        
+@app.route('/tasks/',methods=['GET'])
+def getAllTasks():
+    #params = request.get_json()
+    #room==params['token']
+    return jsonify(Task.objects())
+        
     
-    #if user send notification ?
-    task = Task(taskName=taskName, additionalDescription=additionalDescription,awardPoints=awardPoints)
-    task.save()
-    return jsonify(task)

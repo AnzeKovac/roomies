@@ -20,4 +20,6 @@ class Task(db.Document):
     additionalDescription = db.StringField()
     awardPoints = db.IntField()
     assignedUser = db.ObjectIdField
+    status = db.StringField
+    room = db.ObjectIdField(required=True)
 
