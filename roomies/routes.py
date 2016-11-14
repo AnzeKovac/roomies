@@ -9,7 +9,7 @@ from . import app, db
 
 @app.route('/')
 def test_get():
-    return "popravi me :( -> nečem"
+    return "popravi me :("
 
 #authentication
 @app.route('/register/<string:username>', methods=['POST'])
@@ -49,7 +49,7 @@ def register_user(username):
     return 'User je registriran' 
 
 
-#Task
+#add new task
 @app.route('/task/add', methods=['POST'])
 def addNewTas():
         task = Task()
@@ -72,7 +72,7 @@ def addNewTas():
         return jsonify(task)
         
         
-
+#task get,update,delete
 @app.route('/task/<string:taskId>',methods=['GET','DELETE','PUT'])
 def completeTask(taskId):
     if request.method == 'GET':
@@ -93,10 +93,11 @@ def completeTask(taskId):
         task.delete()
         return 'Delete OK'
         
+ #get all tasks
 @app.route('/tasks/',methods=['GET'])
 def getAllTasks():
     #params = request.get_json()
-    #room==params['token']
+    #room==params['token'] if 'token' in params else ''
     return jsonify(Task.objects())
         
     
