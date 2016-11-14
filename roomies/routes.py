@@ -141,3 +141,8 @@ def getStatistics():
             for e in efforts:
                 calculations[e.userId] += e.points
             return str(calculations)
+
+#misc
+@app.route('/',methods=['GET'])
+def returnRoot():
+    return "Funny message"
