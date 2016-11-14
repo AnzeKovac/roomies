@@ -125,3 +125,19 @@ def getAllTasks():
     #params = request.get_json()
     #room==params['token'] if 'token' in params else ''
     return jsonify(Task.objects())
+    
+@app.route('/statistics', methods=['GET'])
+def getStatistics():
+    params = request.args
+    roomId = params['token'] if 'token' in params else None
+    if roomId:
+        room = Room.objects.get(id=roomId)
+        listOfIds = room.users
+        print(listOfIds)
+        efforts = Effort.objects()
+        print(efforts)
+        calculations = defaultdict(int)
+        if efforts:
+            for e in efforts:
+                calculations[e.userId] += e.points
+            return str(calculations)

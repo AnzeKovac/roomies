@@ -24,3 +24,9 @@ class Task(db.Document):
     assignedUser = db.ObjectIdField
     status = db.StringField
     room = db.ObjectIdField(required=True)
+    
+class Effort(db.Document):
+    taskId = db.ObjectIdField()
+    userId = db.ObjectIdField()
+    points = db.IntField()
+    date = db.DateTimeField()
