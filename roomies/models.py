@@ -6,15 +6,17 @@ from . import db
 
 class User(db.Document):
     username = db.StringField(required=True)  # Default is False
+    password = db.StringField(required=True)
     room = db.ObjectIdField(required=True)
-    first_name = db.StringField()
-    last_name = db.StringField()
+    firstName = db.StringField()
+    lastName = db.StringField()
 
 
 class Room(db.Document):
-    room_name = db.StringField(required=True)
+    roomName = db.StringField(required=True, unique=True)
     users = db.ListField(db.ObjectIdField(), default=list)
-    
+
+
 class Task(db.Document):
     taskName = db.StringField(required=True)
     additionalDescription = db.StringField()
@@ -22,4 +24,3 @@ class Task(db.Document):
     assignedUser = db.ObjectIdField
     status = db.StringField
     room = db.ObjectIdField(required=True)
-
