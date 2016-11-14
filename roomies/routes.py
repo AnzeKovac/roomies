@@ -2,21 +2,21 @@
 import json
 
 
-from .models import User, Room
+from .models import User, Room, Task
 from flask import jsonify, request, url_for
 from . import app, db
 
 
 @app.route('/')
 def test_get():
-    return "popravi me :("
+    return "popravi me :( -> nečem"
 
 
 @app.route('/register/<string:username>', methods=['POST'])
 def register_user(username):
     parms = request.get_json()
-    register_room = parms['register_room']
-    room_name = parms['room_name']
+    register_room = parms['registerRoom']
+    room_name = parms['roomName']
 
     if register_room:  # Create new room with new user
 
@@ -45,5 +45,26 @@ def register_user(username):
 
         room.users.append(user.id)
         room.save()
+    #let's program in engleski, shall we ?
+    return 'User je registriran' 
 
-    return 'User je registriran'
+@app.route('/tasks', methods=['POST'])
+def addNewTask():
+    task = Task()
+
+    parameters = request.get_json()
+
+    taskName = parameters['taskName']
+    additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
+    awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
+    assignedUser =  parameters['userId'] if 'usedId' in parameters else ''
+
+    task.taskName = taskName if taskName else ''
+    task.additionalDescription = additionalDescription
+    task.awardPoints = awardPoints
+    task.assignedUser = assignedUser
+    
+    #if user send notification ?
+    task = Task(taskName=taskName, additionalDescription=additionalDescription,awardPoints=awardPoints)
+    task.save()
+    return jsonify(task)

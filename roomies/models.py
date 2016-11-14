@@ -14,4 +14,10 @@ class User(db.Document):
 class Room(db.Document):
     room_name = db.StringField(required=True)
     users = db.ListField(db.ObjectIdField(), default=list)
+    
+class Task(db.Document):
+    taskName = db.StringField(required=True)
+    additionalDescription = db.StringField()
+    awardPoints = db.IntField()
+    assignedUser = db.ObjectIdField
 
