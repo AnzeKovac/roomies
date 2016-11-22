@@ -29,7 +29,7 @@ def check_password(hashed, password):
 def register_user():
     parms = request.get_json()
     parmsUrl = request.args
-    registerRoom = parmsUrl['registerRoom']
+    registerRoom = parmsUrl['newRoom']
     username = parms['username']
     password = parms['password']
     roomName = parms['roomName']
