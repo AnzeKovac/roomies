@@ -1,9 +1,6 @@
 """ API """
 import hashlib
 
-todo.fri.uni-lj.si:1521/vaje
-PB63140120
-pb63140120
 
 from .models import User, Room, Task, Effort
 from flask import jsonify, request, url_for, Response, abort
