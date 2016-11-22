@@ -1,11 +1,15 @@
 """ API """
 import hashlib
 
+todo.fri.uni-lj.si:1521/vaje
+PB63140120
+pb63140120
 
-from .models import User, Room, Task
+from .models import User, Room, Task, Effort
 from flask import jsonify, request, url_for, Response, abort
 from . import app
 from mongoengine.errors import NotUniqueError
+from collections import defaultdict
 #from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -27,8 +31,8 @@ def check_password(hashed, password):
 @app.route('/register', methods=['POST'])
 def register_user():
     parms = request.get_json()
-
-    registerRoom = parms['registerRoom']
+    parmsUrl = request.args
+    registerRoom = parmsUrl['registerRoom']
     username = parms['username']
     password = parms['password']
     roomName = parms['roomName']
@@ -95,8 +99,8 @@ def addNewTas():
         #if user send notification ?
         task.save()
         return jsonify(task)
-        
-        
+
+
 #task get,update,delete
 @app.route('/task/<string:taskId>', methods=['GET', 'DELETE', 'PUT'])
 def completeTask(taskId):
@@ -125,7 +129,7 @@ def getAllTasks():
     #params = request.get_json()
     #room==params['token'] if 'token' in params else ''
     return jsonify(Task.objects())
-    
+
 @app.route('/statistics', methods=['GET'])
 def getStatistics():
     params = request.args
