@@ -5,12 +5,17 @@ import hashlib
 from .models import User, Room, Task, Effort
 from flask import jsonify, request, url_for, Response, abort
 from . import app
-from mongoengine.errors import NotUniqueError
+from mongoengine.errors import NotUniqueError, DoesNotExist
 from collections import defaultdict
-#from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def register_err(err_msg, status_code):
+def get_document(query):
+    """This function gets query object on input and returns document type.
+    """
+    return query.first()
+
+
+def error_handler(err_msg, status_code):
     response = jsonify(dict(error=err_msg))
     response.status_code = status_code
     return response
@@ -20,34 +25,35 @@ def hash_password(password):
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
 
-def check_password(hashed, password):
-    return hash_password(hashed) == password
+def check_password(password, hashed):
+    return hash_password(password) == hashed
 
 
 #authentication
 @app.route('/register', methods=['POST'])
-def register_user():
+def register():
     parms = request.get_json()
     parmsUrl = request.args
+
     registerRoom = parmsUrl['newRoom']
     username = parms['username']
     password = parms['password']
-    roomName = parms['roomName']
+    room = parms['room']
 
-    if registerRoom:  # Create new room with new user
+    if registerRoom == 'true':  # Create new room with new user
 
         # Create new room with unique id (stored as ObjectID)
-        room = Room(roomName=roomName)
+        room = Room(name=room['name'])
         try:
             room.save()
         except NotUniqueError:
-            return register_err('There was a conflict. Room name is already taken', 409)
+            return error_handler('There was a conflict. Room name is already taken', 409)
 
         # save ID of newly created room
         newRoomId = room.id
 
         #  Create new user. Assign him with to the newly created room
-        user = User(username=username, password=hash_password(password), room=newRoomId)
+        user = User(username=username, password=hash_password(password), room=room.to_dict())
         user.save()
         # save ID of newly created user
         user_id = user.id
@@ -57,22 +63,51 @@ def register_user():
         room.users.append(user_id)
         room.save()
 
-    else:  # add new user to the room (using name from request parameter)
-        room = Room.objects.get(roomName=roomName)
+    else:  # add new user to the room roomies.models.DoesNotExist
 
-        existing = User.objects(room=room.id)
+        try:
+            room = Room.objects.get(name=room['name'])
+        except DoesNotExist:
+            return error_handler('There was a conflict. Room name does not exist', 409)
+
+        existing = User.objects(room__id=room.id)
         existingNames = [name.username for name in existing]
 
         if username in existingNames:
-            return register_err('There was a conflict. Username for this room is taken', 409)
+            return error_handler('There was a conflict. Username for this room is taken', 409)
 
-        user = User(username=username, password=hash_password(password), room=room.id)
+        user = User(username=username, password=hash_password(password), room=room.to_dict())
         user.save()
 
         room.users.append(user.id)
         room.save()
 
-    return jsonify(dict(token=str(room.id)))
+    token = User.objects(id=user.id).exclude("password")
+
+    return jsonify(get_document(token).to_dict())
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    parms = request.get_json()
+
+    username = parms['username']
+    password = parms['password']
+    room = parms['room']
+
+    list_users = Room.objects(name=room['name']).only("users").first()
+    if not list_users:
+        return error_handler("Room is not existent", 401)
+
+    for user_id in list_users.users:
+        user = User.objects.get(id=user_id)
+
+        if user.username == username and check_password(password, user.password):
+            token = User.objects(id=user.id).exclude("password")
+            return jsonify(get_document(token).to_dict())
+
+    return error_handler("Login failed", 401)
+
 
 
 #add new task

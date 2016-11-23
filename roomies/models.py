@@ -2,19 +2,24 @@
 from . import db
 
 
-# TODO: What will our models need?
+class Room(db.Document):
+    name = db.StringField(required=True, unique=True)
+    users = db.ListField(db.ObjectIdField(), default=list)
+
+    def to_dict(self,):
+        return {key.replace("_", ""): value for key, value in self.to_mongo().to_dict().items()
+                if key is not "users"}
+
 
 class User(db.Document):
     username = db.StringField(required=True)  # Default is False
     password = db.StringField(required=True)
-    room = db.ObjectIdField(required=True)
+    room = db.DictField(required=True)
     firstName = db.StringField()
     lastName = db.StringField()
 
-
-class Room(db.Document):
-    roomName = db.StringField(required=True, unique=True)
-    users = db.ListField(db.ObjectIdField(), default=list)
+    def to_dict(self):
+        return self.to_mongo().to_dict()
 
 
 class Task(db.Document):
@@ -24,7 +29,8 @@ class Task(db.Document):
     assignedUser = db.ObjectIdField
     status = db.StringField
     room = db.ObjectIdField(required=True)
-    
+
+
 class Effort(db.Document):
     taskId = db.ObjectIdField()
     userId = db.ObjectIdField()
