@@ -63,7 +63,7 @@ def register():
         room.users.append(user_id)
         room.save()
 
-    else:  # add new user to the room roomies.models.DoesNotExist
+    elif registerRoom == 'false':  # add new user to the room roomies.models.DoesNotExist
 
         try:
             room = Room.objects.get(name=room['name'])
@@ -81,6 +81,9 @@ def register():
 
         room.users.append(user.id)
         room.save()
+
+    else:
+        return error_handler('The request could not be understood by the server due to malformed syntax.', 400)
 
     token = User.objects(id=user.id).exclude("password")
 
