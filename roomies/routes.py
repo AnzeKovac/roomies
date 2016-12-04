@@ -7,6 +7,7 @@ from flask import jsonify, request, url_for, Response, abort
 from . import app
 from mongoengine.errors import NotUniqueError, DoesNotExist
 from collections import defaultdict
+from bson import ObjectId
 
 
 def get_document(query):
@@ -122,18 +123,20 @@ def addNewTas():
         taskName = parameters['taskName']
         additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
         awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
-        assignedUser = parameters['userId'] if 'usedId' in parameters else ''
+        assignedUser = parameters['assignedUser'] if 'assignedUser' in parameters else ''
         room = parameters['room'] if 'room' in parameters else ''
 
         task.taskName = taskName if taskName else ''
         task.additionalDescription = additionalDescription
         task.awardPoints = awardPoints
-        task.assignedUser = assignedUser
+        task.assignedUser = get_document(User.objects(id=ObjectId(assignedUser))).to_dict()
         task.status = 'new'
-        task.room = room
+        task.room = get_document(Room.objects(id=ObjectId(room))).to_dict()
         #if user send notification ?
         task.save()
-        return jsonify(task)
+
+        newTask = Task.objects(id=task.id)
+        return jsonify(get_document(newTask).to_dict())
 
 
 #task get,update,delete

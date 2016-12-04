@@ -24,11 +24,14 @@ class User(db.Document):
 
 class Task(db.Document):
     taskName = db.StringField(required=True)
-    additionalDescription = db.StringField()
-    awardPoints = db.IntField()
-    assignedUser = db.ObjectIdField
+    additionalDescription = db.StringField(required=True)
+    awardPoints = db.IntField(required=True)
+    assignedUser = db.DictField()
     status = db.StringField
-    room = db.ObjectIdField(required=True)
+    room = db.DictField(required=True)
+
+    def to_dict(self):
+        return self.to_mongo().to_dict()
 
 
 class Effort(db.Document):
