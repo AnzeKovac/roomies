@@ -113,7 +113,6 @@ def login():
     return error_handler("Login failed", 401)
 
 
-
 #add new task
 @app.route('/task/add', methods=['POST'])
 def addNewTas():
@@ -129,14 +128,12 @@ def addNewTas():
         task.taskName = taskName if taskName else ''
         task.additionalDescription = additionalDescription
         task.awardPoints = awardPoints
-        task.assignedUser = get_document(User.objects(id=ObjectId(assignedUser))).to_dict()
+        #task.assignedUser = get_document(User.objects(id=ObjectId(assignedUser))).to_dict()
         task.status = 'new'
-        task.room = get_document(Room.objects(id=ObjectId(room))).to_dict()
+        task.room = room
         #if user send notification ?
         task.save()
-
-        newTask = Task.objects(id=task.id)
-        return jsonify(get_document(newTask).to_dict())
+        return jsonify(serialize_task(task))
 
 
 #task get,update,delete
@@ -162,11 +159,10 @@ def completeTask(taskId):
 
 
 #get all tasks
-@app.route('/tasks/', methods=['GET'])
-def getAllTasks():
-    #params = request.get_json()
-    #room==params['token'] if 'token' in params else ''
-    return jsonify(Task.objects())
+@app.route('/tasks/<string:roomId>', methods=['GET'])
+def getAllTasks(roomId):
+    tasks = Task.objects(room=roomId)
+    return jsonify(tasks=[serialize_task(t) for t in tasks])
 
 @app.route('/statistics', methods=['GET'])
 def getStatistics():
