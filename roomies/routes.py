@@ -1,7 +1,7 @@
 """ API """
 import hashlib
 
-
+from .serializers import serializer_tasks
 from .models import User, Room, Task, Effort
 from flask import jsonify, request, url_for, Response, abort
 from . import app
