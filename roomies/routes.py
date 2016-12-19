@@ -140,7 +140,7 @@ def addNewTas():
 @app.route('/task/<string:taskId>', methods=['GET', 'DELETE', 'PUT'])
 def completeTask(taskId):
     if request.method == 'GET':
-        return jsonify(Task.objects.get(id=taskId))
+        return jsonify(serialize_task(Task.objects.get(id=taskId)))
     elif request.method == 'PUT':
         params = request.get_json()
         task = Task.objects.get(id=taskId)
