@@ -183,4 +183,4 @@ def getStatistics():
 #misc
 @app.route('/',methods=['GET'])
 def returnRoot():
-    return "Funny message"
+    return "It's free. GO GO GO!"
