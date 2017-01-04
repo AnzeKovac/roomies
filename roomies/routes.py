@@ -113,6 +113,21 @@ def login():
     return error_handler("Login failed", 401)
 
 
+@app.route('/users/<string:roomId>', methods=['GET'])
+def get_users(roomId):
+    """Return all users in room
+    """
+    out = dict()
+    room = Room.objects(id=roomId).first()
+    list_users = room.users
+
+    for userID in list_users:
+        user_obj = User.objects(id=userID).first()
+        out[user_obj.username] = user_obj.id
+
+    return jsonify(out)
+
+
 #add new task
 @app.route('/task/add', methods=['POST'])
 def addNewTas():
