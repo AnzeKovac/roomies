@@ -1,8 +1,8 @@
 def serialize_task(task):
     return {
         'id': task.id,
-        'taskName': str(task.taskName),
-        'additionalDescription': str(task.additionalDescription),
+        'taskName': task.taskName,
+        'additionalDescription': task.additionalDescription,
         'awardPoints': int(task.awardPoints),
         'assignedUser':task.assignedUser,
         'status':str(task.status),
@@ -11,7 +11,7 @@ def serialize_task(task):
 def serialize_room(room):
     return{
         'id': room.id,
-        'name':str(room.name)
+        'name':room.name
     }
 
 def serialize_effort(effort):
