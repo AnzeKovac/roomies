@@ -134,8 +134,8 @@ def addNewTas():
         task = Task()
         parameters = request.get_json()
 
-        taskName = parameters['taskName']
-        additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
+        taskName = str(parameters['taskName'])
+        additionalDescription = str(parameters['additionalDescription']) if 'additionalDescription' in parameters else ''
         awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
         assignedUser = parameters['assignedUser'] if 'assignedUser' in parameters else ''
         room = parameters['room'] if 'room' in parameters else ''
