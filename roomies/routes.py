@@ -135,8 +135,8 @@ def addNewTas():
         task = Task()
         parameters = request.get_json()
 
-        taskName = str(parameters['taskName'])
-        additionalDescription = str(parameters['additionalDescription']) if 'additionalDescription' in parameters else ''
+        taskName = parameters['taskName']
+        additionalDescription = parameters['additionalDescription'] if 'additionalDescription' in parameters else ''
         awardPoints = parameters['awardPoints'] if 'awardPoints' in parameters else 0
         assignedUser = parameters['assignedUser'] if 'assignedUser' in parameters else ''
         room = parameters['room'] if 'room' in parameters else ''
@@ -176,31 +176,33 @@ def taskManipulation(taskId):
 #accomplish recouring task
 @app.route('/task/<string:taskId>/accomplish/<string:userId>', methods=['PUT'])
 def accomplishTask(taskId,userId):
-    task = Task.objects.get(id=taskId)
-    if(task):
+    try:
+        task = Task.objects.get(id=taskId)
         effort = Effort()
         effort.userId = userId
         effort.taskId = taskId;
         effort.points = task.awardPoints
         effort.date = datetime.utcnow()
-        effort.save();
+        effort.save()
         return jsonify(serialize_effort(effort))
-    return error_handler("Task not found", 405)
+    except DoesNotExist:
+        return error_handler('There was a conflict. Room name does not exist', 409)
 
 #complete onetime tasks
 @app.route('/task/<string:taskId>/complete/<string:userId>', methods=['PUT'])
 def completeTask(taskId,userId):
-    task = Task.objects.get(id=taskId)
-    if(task):
+    try:
+        task = Task.objects.get(id=taskId)
         effort = Effort()
         effort.userId = userId
         effort.taskId = taskId;
         effort.points = task.awardPoints
         effort.date = datetime.utcnow()
-        effort.save();
-        task.delete();
+        effort.save()
+        task.delete()
         return jsonify(serialize_effort(effort))
-    return error_handler("Task not found", 405)
+    except DoesNotExist:
+        return error_handler('There was a conflict. Room name does not exist', 409)
 
 
 #get all tasks
