@@ -1,13 +1,14 @@
 """ API """
 import hashlib
 
-from .serializers import serialize_task
+from .serializers import serialize_task,serialize_effort
 from .models import User, Room, Task, Effort
 from flask import jsonify, request, url_for, Response, abort
 from . import app
 from mongoengine.errors import NotUniqueError, DoesNotExist
 from collections import defaultdict
 from bson import ObjectId
+from datetime import datetime
 
 
 def get_document(query):
@@ -153,7 +154,7 @@ def addNewTas():
 
 #task get,update,delete
 @app.route('/task/<string:taskId>', methods=['GET', 'DELETE', 'PUT'])
-def completeTask(taskId):
+def taskManipulation(taskId):
     if request.method == 'GET':
         return jsonify(serialize_task(Task.objects.get(id=taskId)))
     elif request.method == 'PUT':
@@ -172,6 +173,35 @@ def completeTask(taskId):
         task.delete()
         return 'Delete OK'
 
+#accomplish recouring task
+@app.route('/task/<string:taskId>/accomplish/<string:userId>', methods=['PUT'])
+def accomplishTask(taskId,userId):
+    task = Task.objects.get(id=taskId)
+    if(task):
+        effort = Effort()
+        effort.userId = userId
+        effort.taskId = taskId;
+        effort.points = task.awardPoints
+        effort.date = datetime.utcnow()
+        effort.save();
+        return jsonify(serialize_effort(effort))
+    return error_handler("Task not found", 405)
+
+#complete onetime tasks
+@app.route('/task/<string:taskId>/complete/<string:userId>', methods=['PUT'])
+def completeTask(taskId,userId):
+    task = Task.objects.get(id=taskId)
+    if(task):
+        effort = Effort()
+        effort.userId = userId
+        effort.taskId = taskId;
+        effort.points = task.awardPoints
+        effort.date = datetime.utcnow()
+        effort.save();
+        task.delete();
+        return jsonify(serialize_effort(effort))
+    return error_handler("Task not found", 405)
+
 
 #get all tasks
 @app.route('/tasks/<string:roomId>', methods=['GET'])
@@ -179,7 +209,7 @@ def getAllTasks(roomId):
     tasks = Task.objects(room=roomId)
     return jsonify(tasks=[serialize_task(t) for t in tasks])
 
-@app.route('/statistics', methods=['GET'])
+@app.route('/statistics/<string:roomId>', methods=['GET'])
 def getStatistics():
     params = request.args
     roomId = params['token'] if 'token' in params else None

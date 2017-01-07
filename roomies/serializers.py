@@ -14,3 +14,11 @@ def serialize_room(room):
         'name':str(room.name)
     }
 
+def serialize_effort(effort):
+    return{
+    'id':effort.id,
+    'userId':effort.userId,
+    'taskId':effort.taskId,
+    'points':effort.points,
+    'date':effort.date
+    }

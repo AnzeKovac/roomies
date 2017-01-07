@@ -32,7 +32,7 @@ class Task(db.Document):
 
 
 class Effort(db.Document):
-    taskId = db.ObjectIdField()
-    userId = db.ObjectIdField()
+    taskId = db.StringField()
+    userId = db.StringField()
     points = db.IntField()
     date = db.DateTimeField()
