@@ -178,15 +178,18 @@ def taskManipulation(taskId):
 def accomplishTask(taskId,userId):
     try:
         task = Task.objects.get(id=taskId)
+        user = User.objects.get(id=userId)
         effort = Effort()
-        effort.userId = userId
-        effort.taskId = taskId;
+        effort.userId = str(user.id)
+        effort.userName = user.username
+        effort.roomId =  str(user.room['id'])
+        effort.taskId = taskId
         effort.points = task.awardPoints
         effort.date = datetime.utcnow()
         effort.save()
         return jsonify(serialize_effort(effort))
     except DoesNotExist:
-        return error_handler('There was a conflict. Room name does not exist', 409)
+        return error_handler('Task or User doesnt exist', 409)
 
 #complete onetime tasks
 @app.route('/task/<string:taskId>/complete/<string:userId>', methods=['PUT'])
@@ -195,8 +198,9 @@ def completeTask(taskId,userId):
         task = Task.objects.get(id=taskId)
         user = User.objects.get(id=userId)
         effort = Effort()
-        effort.userId = user.id
-        effort.userName = user.Name
+        effort.userId = str(user.id)
+        effort.userName = user.username
+        effort.roomId =  str(user.room['id'])
         effort.taskId = taskId;
         effort.points = task.awardPoints
         effort.date = datetime.utcnow()
@@ -204,7 +208,7 @@ def completeTask(taskId,userId):
         task.delete()
         return jsonify(serialize_effort(effort))
     except DoesNotExist:
-        return error_handler('There was a conflict. Room name does not exist', 409)
+        return error_handler('Task or User doesnt exist', 409)
 
 
 #get all tasks
@@ -216,16 +220,13 @@ def getAllTasks(roomId):
 @app.route('/statistics/<string:roomId>', methods=['GET'])
 def getStatistics(roomId):
     if roomId:
-        room = Room.objects.get(id=roomId)
-        listOfIds = room.users
-        print(listOfIds)
-        efforts = Effort.objects()
+        efforts = Effort.objects(roomId=roomId)
         print(efforts)
         calculations = defaultdict(int)
         if efforts:
             for e in efforts:
                 calculations[e.userName] += e.points
-        return str(calculations)
+        return jsonify(calculations)
 
 #misc
 @app.route('/',methods=['GET'])

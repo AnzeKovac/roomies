@@ -34,6 +34,7 @@ class Task(db.Document):
 class Effort(db.Document):
     taskId = db.StringField()
     userId = db.StringField()
+    roomId = db.StringField()
     userName = db.StringField()
     points = db.IntField()
     date = db.DateTimeField()
