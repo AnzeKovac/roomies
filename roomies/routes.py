@@ -144,7 +144,7 @@ def addNewTas():
         task.taskName = taskName if taskName else ''
         task.additionalDescription = additionalDescription
         task.awardPoints = awardPoints
-        #task.assignedUser = get_document(User.objects(id=ObjectId(assignedUser))).to_dict()
+        task.assignedUser = assignedUser
         task.status = 'new'
         task.room = room
         #if user send notification ?
