@@ -226,7 +226,15 @@ def getStatistics(roomId):
         if efforts:
             for e in efforts:
                 calculations[e.userName] += e.points
-        return jsonify(calculations)
+
+        stats = []
+        if calculations:
+            for key, value in calculations.items():
+                stat = dict()
+                stat['username']=key
+                stat['points']=value
+                stats.append(stat)
+        return jsonify(stats)
 
 #misc
 @app.route('/',methods=['GET'])
