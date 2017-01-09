@@ -20,5 +20,6 @@ def serialize_effort(effort):
     'userId':effort.userId,
     'taskId':effort.taskId,
     'points':effort.points,
-    'date':effort.date
+    'date':effort.date,
+    'userName':effort.userName
     }

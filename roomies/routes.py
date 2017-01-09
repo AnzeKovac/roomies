@@ -193,8 +193,10 @@ def accomplishTask(taskId,userId):
 def completeTask(taskId,userId):
     try:
         task = Task.objects.get(id=taskId)
+        user = User.objects.get(id=userId)
         effort = Effort()
-        effort.userId = userId
+        effort.userId = user.id
+        effort.userName = user.Name
         effort.taskId = taskId;
         effort.points = task.awardPoints
         effort.date = datetime.utcnow()
@@ -212,9 +214,7 @@ def getAllTasks(roomId):
     return jsonify(tasks=[serialize_task(t) for t in tasks])
 
 @app.route('/statistics/<string:roomId>', methods=['GET'])
-def getStatistics():
-    params = request.args
-    roomId = params['token'] if 'token' in params else None
+def getStatistics(roomId):
     if roomId:
         room = Room.objects.get(id=roomId)
         listOfIds = room.users
@@ -224,8 +224,8 @@ def getStatistics():
         calculations = defaultdict(int)
         if efforts:
             for e in efforts:
-                calculations[e.userId] += e.points
-            return str(calculations)
+                calculations[e.userName] += e.points
+        return str(calculations)
 
 #misc
 @app.route('/',methods=['GET'])
