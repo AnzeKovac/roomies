@@ -222,11 +222,22 @@ def getAllTasks(roomId):
 
 @app.route('/statistics/<string:roomId>', methods=['GET'])
 def getStatistics(roomId):
+
+    #insert all users. (even if they have no effort they must be shown)
+    calculations = dict()
+    counter = dict()
+    room = Room.objects(id=roomId).first()
+    list_users = room.users
+
+
+    for userID in list_users:
+        user_obj = User.objects(id=userID).first()
+        calculations[user_obj.username] = 0
+        counter[user_obj.username] = 0
+
+
     if roomId:
         efforts = Effort.objects(roomId=roomId)
-        print(efforts)
-        calculations = defaultdict(int)
-        counter = defaultdict(int)
         if efforts:
             for e in efforts:
                 calculations[e.userName] += e.points
