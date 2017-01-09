@@ -223,16 +223,18 @@ def getStatistics(roomId):
         efforts = Effort.objects(roomId=roomId)
         print(efforts)
         calculations = defaultdict(int)
+        counter = defaultdict(int)
         if efforts:
             for e in efforts:
                 calculations[e.userName] += e.points
-
+                counter[e.userName] += 1
         stats = []
         if calculations:
             for key, value in calculations.items():
                 stat = dict()
                 stat['username']=key
                 stat['points']=value
+                stat['tasksNumber']=counter[key]
                 stats.append(stat)
         return jsonify(stats)
 
