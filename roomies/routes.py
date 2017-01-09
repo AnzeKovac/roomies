@@ -163,9 +163,12 @@ def taskManipulation(taskId):
         task.taskName = params['taskName'] if 'taskName' in params else task.TaskName
         task.additionalDescription = params['additionalDescription'] if 'additionalDescription' in params else task.additionalDescription
         task.awardPoints = params['awardPoints'] if 'awardPoints' in params else task.awardPoints
-        task.assignedUser = params['userId'] if 'userId' in params else task.assignedUser
+        task.assignedUser = params['assignedUser'] if 'assignedUser' in params else task.assignedUser
         task.room = params['room'] if 'room' in params else task.room
         task.status = params['status'] if 'status' in params else task.status
+
+        if not task.assignedUser:
+            task.assignedUser = ''
         task.save()
         return 'Update OK'
     elif request.method == 'DELETE':
