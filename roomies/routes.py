@@ -129,6 +129,24 @@ def get_users(roomId):
     return jsonify(out)
 
 
+@app.route('/getUsers/<string:roomId>', methods=['GET'])
+def get_user_objects(roomId):
+    """Return all user object in room
+    """
+    object_user = dict()
+    room = Room.objects(id=roomId).first()
+    list_users = room.users
+
+    out = []
+    for userID in list_users:
+        user_obj = User.objects(id=userID).first()
+        object_user['username'] = user_obj.username
+        object_user['id'] = user_obj.id
+        out.append(object_user)
+
+    return jsonify(out)
+
+
 #add new task
 @app.route('/task/add', methods=['POST'])
 def addNewTas():
