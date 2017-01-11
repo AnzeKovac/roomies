@@ -3,6 +3,10 @@ import unittest
 import json
 import requests
 
+VARS = {'room_id': '',
+        'task_id': '',
+        'user_id': ''}
+
 
 # noinspection PyCompatibility
 class TestROOMIES(unittest.TestCase):
@@ -15,9 +19,6 @@ class TestROOMIES(unittest.TestCase):
         self.username = 'TestingUser'
         self.password = 'TestingUser'
         self.room_name = 'TestingUser'
-        self.room_id = None
-        self.task_id = None
-        self.user_id = None
         self.awardPoints = 10
 
         self.url = 'http://127.0.0.1:5000/'
@@ -58,10 +59,10 @@ class TestROOMIES(unittest.TestCase):
         self.assertTrue(response.status_code, 200)
         self.assertEqual(token['room']['name'], self.room_name)
         self.assertEqual(token['username'], self.username)
-        print(token)
-        self.user_id = token['_id']
-        self.room_id = token['room']['id']
-        print(self.room_id)
+
+        VARS['user_id'] = token['_id']
+        VARS['room_id'] = token['room']['id']
+
     def test002_login(self):
         payload = {
             'username': self.username,
@@ -77,7 +78,7 @@ class TestROOMIES(unittest.TestCase):
         self.assertTrue(response.status_code, 200)
         self.assertEqual(token['room']['name'], self.room_name)
         self.assertEqual(token['username'], self.username)
-        print(self.room_id)
+
     def test003_register_conflict(self):
         parameter = {'newRoom': 'true'}
         payload = {
@@ -210,57 +211,59 @@ class TestROOMIES(unittest.TestCase):
             'taskName': 'Pospravi kuhinjo',
             'additionalDescription': 'Počisti lijak, hladilnik in posesaj!',
             'awardPoints': self.awardPoints,
-            'room': self.room_id
+            'room': VARS['room_id']
         }
-        print(self.room_id, self.awardPoints)
+
         response = requests.post(self.url + 'task/add', data=json.dumps(payload), headers=self.headers)
         token = response.json()
 
         self.assertTrue(response.status_code, 200)
         self.assertTrue(token['status'], 'new')
-        self.assertTrue(token['assignedUser'], '')
-
-        self.task_id = token['id']
+        VARS['task_id'] = token['id']
 
     def test010_update_task(self):
         payload = {
             'taskName': 'Pospravi kuhinjo - popravljeno ime'
         }
 
-        response = requests.put(self.url + 'task/' + self.room_id, data=payload)
+        response = requests.put(self.url + 'task/' + VARS['task_id'], data=payload)
         token = response.content
 
         self.assertTrue(response.status_code, 200)
         self.assertTrue(token, 'Update OK')
 
-        response = requests.get(self.url + 'task/' + self.room_id)
+        response = requests.get(self.url + 'task/' + VARS['task_id'])
         token = response.json()
 
         self.assertTrue(response.status_code, 200)
-        self.assertTrue(token['id'], self.room_id)
+        self.assertTrue(token['id'], VARS['room_id'])
         self.assertTrue(token['taskName'], 'Pospravi kuhinjo - popravljeno ime')
 
     def test011_accomplish_task(self):
-        endpoint = 'task/' + self.task_id + '/accomplish/' + self.user_id
+        endpoint = 'task/' + VARS['task_id'] + '/accomplish/' + VARS['user_id']
         response = requests.put(self.url + endpoint)
 
         token = response.json()
 
         self.assertTrue(response.status_code, 200)
-        self.assertTrue(token['roomId'], self.room_id)
-        self.assertTrue(token['taskId'], self.task_id)
-        self.assertTrue(token['userId'], self.user_id)
+        self.assertTrue(token['roomId'], VARS['room_id'])
+        self.assertTrue(token['taskId'], VARS['task_id'])
+        self.assertTrue(token['userId'], VARS['user_id'])
         self.assertTrue(token['userName'], self.username)
 
     def test012_statistics(self):
-        endpoint = 'statistics/' + self.room_id
+        endpoint = 'statistics/' + VARS['room_id']
         response = requests.get(self.url + endpoint)
+        self.assertTrue(response.status_code, 200)
 
         token = response.json()
-        #self.assertListEqual()
-        print(token)
-    def test013_(self):
-        pass
 
+        self.assertEqual(len(token), 2)
+        self.assertEqual(token[0]['points'], 0)
+        self.assertEqual(token[0]['tasksNumber'], 0)
+        self.assertEqual(token[1]['points'], 10)
+        self.assertEqual(token[1]['tasksNumber'], 1)
 
-
+    def test013_testServer_online(self):
+        response = requests.get(self.url)
+        self.assertTrue(response.status_code, 200)
